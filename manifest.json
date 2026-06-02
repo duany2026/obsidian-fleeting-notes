@@ -1,0 +1,10 @@
+{
+	"id": "fleeting-notes-capture",
+	"name": "闪念笔记",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "快速记录闪念笔记，按月归档，支持手机端。",
+	"author": "duany",
+	"authorUrl": "https://github.com/yourusername",
+	"isDesktopOnly": false
+}
