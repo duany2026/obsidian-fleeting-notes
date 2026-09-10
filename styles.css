@@ -1,37 +1,11 @@
 /* ============================================
-   闪念笔记 — 全面美化样式
-   ============================================ */
+    闪念笔记 — 全面美化样式
+    ============================================ */
 
-/* 弹窗 */
-.fleeting-notes-modal {
-	padding: 16px;
-}
-.fleeting-modal-title {
-	margin: 0 0 12px 0;
-	font-size: 16px;
-	font-weight: 600;
-}
-.fleeting-text-area {
-	width: 100% !important;
-	min-height: 120px !important;
-	font-size: 14px;
-	line-height: 1.6;
-	resize: vertical;
-}
-.fleeting-input-error {
-	border-color: var(--text-error) !important;
-	animation: fn-shake 0.3s ease-in-out;
-}
 @keyframes fn-shake {
 	0%, 100% { transform: translateX(0); }
 	25% { transform: translateX(-4px); }
 	75% { transform: translateX(4px); }
-}
-.fleeting-modal-buttons {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-	margin-top: 12px;
 }
 
 /* 设置页 */
@@ -110,36 +84,18 @@
 	gap: 12px;
 	min-width: 0;
 }
-.fn-header-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 12px;
-	background: linear-gradient(135deg, var(--interactive-accent), color-mix(in srgb, var(--interactive-accent) 70%, #000));
-	color: var(--text-on-accent);
-	box-shadow: 0 2px 8px color-mix(in srgb, var(--interactive-accent) 30%, transparent);
-	flex-shrink: 0;
-}
-.fn-header-icon svg {
-	width: 20px;
-	height: 20px;
-}
-.fn-header-title {
-	font-size: 18px;
-	font-weight: 700;
-	color: var(--text-normal);
-	letter-spacing: -0.3px;
-}
 .fn-header-sub {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 4px;
 	font-size: 13px;
 	color: var(--text-muted);
 	margin-top: 2px;
 	flex-wrap: wrap;
+}
+.fn-header-date {
+	font-weight: 600;
+	color: var(--text-normal);
 }
 .fn-header-dot {
 	color: var(--text-faint);
@@ -148,7 +104,7 @@
 	font-size: 12px;
 	color: var(--text-muted);
 }
-.fn-badge-active {
+.fn-badge-high {
 	color: var(--interactive-accent);
 	font-weight: 600;
 }
@@ -171,6 +127,7 @@
 }
 .fn-input-area:focus-within {
 	border-color: var(--interactive-accent);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 	box-shadow: 0 2px 12px color-mix(in srgb, var(--interactive-accent) 15%, transparent);
 }
 
@@ -231,7 +188,7 @@
    列表区域
    ============================================ */
 .fn-list-section {
-	margin-top: 4px;
+	margin-top: 14px;
 }
 .fn-list-header {
 	display: flex;
@@ -285,6 +242,7 @@
 }
 .fn-sep-dot-today {
 	background: var(--interactive-accent);
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
 }
 .fn-sep-label {
@@ -322,33 +280,10 @@
 	box-sizing: border-box;
 }
 .fn-item:hover {
+	border-color: var(--background-modifier-border-hover);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	border-color: color-mix(in srgb, var(--interactive-accent) 40%, var(--background-modifier-border));
 	box-shadow: 0 2px 8px color-mix(in srgb, var(--interactive-accent) 8%, transparent);
-}
-
-/* 时间列 */
-.fn-item-time-col {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-	flex-shrink: 0;
-	padding-top: 2px;
-	min-width: 40px;
-}
-.fn-time-dot {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--interactive-accent);
-	opacity: 0.6;
-}
-.fn-item-time {
-	font-size: 11px;
-	font-weight: 500;
-	color: var(--text-faint);
-	font-variant-numeric: tabular-nums;
-	letter-spacing: 0.2px;
 }
 
 /* 内容列 */
@@ -364,19 +299,31 @@
 	white-space: pre-wrap;
 }
 
-/* 跳转按钮 */
-.fn-item-go-col {
+/* 右侧列 — 时间 + 跳转纵排 */
+.fn-item-right-col {
 	display: flex;
-	align-items: flex-start;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
 	flex-shrink: 0;
+	min-width: 28px;
 	padding-top: 2px;
+}
+.fn-item-time {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--text-faint);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.2px;
+	white-space: nowrap;
+	line-height: 1.4;
 }
 .fn-goto-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 24px;
+	height: 24px;
 	border-radius: 6px;
 	background: var(--background-secondary);
 	color: var(--text-muted);
@@ -434,17 +381,9 @@
 	color: var(--text-faint);
 }
 
-/* 加载中 */
-.fn-loading {
-	text-align: center;
-	padding: 32px 0;
-	color: var(--text-faint);
-	font-size: 13px;
-}
-
 /* ============================================
-   窄面板适配（侧边栏等 < 400px）
-   ============================================ */
+    窄面板适配（侧边栏等 < 400px）
+    ============================================ */
 .fn-homepage.fn-narrow {
 	padding: 0 12px 32px;
 }
@@ -454,18 +393,6 @@
 .fn-narrow .fn-header {
 	margin-bottom: 14px;
 	padding-bottom: 12px;
-}
-.fn-narrow .fn-header-icon {
-	width: 34px;
-	height: 34px;
-	border-radius: 10px;
-}
-.fn-narrow .fn-header-icon svg {
-	width: 18px;
-	height: 18px;
-}
-.fn-narrow .fn-header-title {
-	font-size: 16px;
 }
 .fn-narrow .fn-input-area {
 	padding: 6px 8px;
@@ -480,20 +407,18 @@
 	padding: 10px 10px;
 	gap: 8px;
 }
-.fn-narrow .fn-item-time-col {
-	min-width: 34px;
+.fn-narrow .fn-item-right-col {
+	min-width: 24px;
 }
 .fn-narrow .fn-goto-btn {
 	opacity: 0.7;
-	width: 30px;
-	height: 30px;
 }
 
 /* ============================================
    手机端适配
    ============================================ */
 .is-mobile .fn-homepage {
-	padding: 0 14px 32px;
+	padding: 0 14px calc(32px + env(safe-area-inset-bottom));
 }
 
 .is-mobile .fn-sticky-top {
@@ -504,19 +429,6 @@
 	margin-bottom: 16px;
 	padding-bottom: 14px;
 }
-.is-mobile .fn-header-icon {
-	width: 36px;
-	height: 36px;
-	border-radius: 10px;
-}
-.is-mobile .fn-header-icon svg {
-	width: 18px;
-	height: 18px;
-}
-.is-mobile .fn-header-title {
-	font-size: 17px;
-}
-
 .is-mobile .fn-input-area {
 	padding: 6px 8px;
 	border-radius: 10px;
@@ -529,9 +441,9 @@
 	padding: 4px 4px 4px 6px;
 }
 .is-mobile .fn-submit-btn {
-	padding: 10px 22px;
-	font-size: 15px;
-	min-height: 40px;
+	padding: 6px 12px;
+	font-size: 13px;
+	min-height: 32px;
 	border-radius: 8px;
 }
 
@@ -545,20 +457,18 @@
 	font-size: 15px;
 	line-height: 1.7;
 }
-.is-mobile .fn-item-time-col {
-	min-width: 32px;
+.is-mobile .fn-item-right-col {
+	min-width: 24px;
 	gap: 2px;
-}
-.is-mobile .fn-time-dot {
-	width: 5px;
-	height: 5px;
+	padding-top: 3px;
 }
 .is-mobile .fn-item-time {
-	font-size: 10px;
+	font-size: 12px;
+	line-height: 1.4;
 }
 .is-mobile .fn-goto-btn {
-	width: 36px;
-	height: 36px;
+	width: 30px;
+	height: 30px;
 	border-radius: 8px;
 	opacity: 0.7;
 	background: var(--background-secondary);
@@ -582,11 +492,4 @@
 
 .is-mobile .fn-empty {
 	padding: 40px 16px;
-}
-
-.is-mobile .fleeting-notes-modal {
-	padding: 12px;
-}
-.is-mobile .fleeting-text-area {
-	font-size: 16px !important;
 }
