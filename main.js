@@ -46,9 +46,12 @@ function buildDayHeaderRegex(dateStr) {
   const uniq = [...new Set(variants)];
   return new RegExp(`^## (?:${uniq.join("|")})(?=\\s|$).*$`, "m");
 }
-/* 在归档全文中追加一条闪念（纯函数）：已有当日分区则插到该分区末尾（时间正序），否则文末新建当日分区 */
+/* 在归档全文中追加一条闪念（纯函数）：已有当日分区则插到该分区末尾（时间正序），否则文末新建当日分区。
+   CRLF 行尾的归档文件保持行尾一致：新增行跟随文件已有行尾，避免混入裸 LF */
 function applyFleetingAppend(existing, todayStr, entry) {
   const headerMatch = existing.match(buildDayHeaderRegex(todayStr));
+  const eol = existing.includes("\r\n") ? "\r\n" : "\n";
+  const entryEol = eol === "\n" ? entry : entry.split("\n").join(eol);
   if (headerMatch) {
     const hIdx = headerMatch.index;
     const after = existing.substring(hIdx + headerMatch[0].length);
@@ -56,12 +59,13 @@ function applyFleetingAppend(existing, todayStr, entry) {
     const insertPos = nextH !== -1 ? hIdx + headerMatch[0].length + nextH : existing.length;
     const before = existing.substring(0, insertPos).trimEnd();
     const rest = existing.substring(insertPos);
-    // 拼接缝结构上最多两个连续换行（before 已 trimEnd，rest 为空或以 "\n## " 开头）；
+    // 拼接缝结构上最多两个连续换行（before 已 trimEnd，rest 为空或以 "\n## " 开头，
+    // CRLF 文件中该 \n 前的 \r 已被 trimEnd 剥离，缝上的换行统一按 eol 补齐）；
     // 不做全文件 \n{3,} 替换，避免压缩用户在其他日期分区有意保留的空行
-    return before + "\n" + entry + "\n" + rest;
+    return before + eol + entryEol + eol + rest.replace(/^\n/, eol);
   }
   const prefix = existing.trimEnd();
-  return (prefix ? prefix + "\n\n" : "") + `## ${todayStr}\n\n${entry}\n`;
+  return (prefix ? prefix + eol + eol : "") + `## ${todayStr}` + eol + eol + entryEol + eol;
 }
 var NoteManager = class {
   constructor(app, settings, persistSettings) {
@@ -380,7 +384,9 @@ var NoteManager = class {
           if (/^- \d{2}:\d{2}/.test(next) || /^## /.test(next))
             break;
           if (next.startsWith("	")) {
-            textLines.push(next.replace(/^\t/, ""));
+            // 行尾 \r（CRLF 文件）剥掉：内容与去重键不再携带行尾残留，
+            // LF 原件 / CRLF 备份副本这类跨行尾风格的重复记录也能正确合并为一条
+            textLines.push(next.replace(/^\t/, "").replace(/\r$/, ""));
           } else if (next.trim() === "") {
             textLines.push("");
           } else {
@@ -773,7 +779,7 @@ var FleetingSettingTab = class extends import_obsidian3.PluginSettingTab {
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian3.Setting(containerEl).setName("\u6587\u4EF6\u5F52\u6863\u5468\u671F").setDesc("\u65B0\u8BB0\u5F55\u7684\u5F52\u6863\u65B9\u5F0F\u3002\u5207\u6362\u540E\u4E0D\u4F1A\u5F71\u54CD\u5DF2\u6709\u6587\u4EF6\uFF0C\u5386\u53F2\u8BB0\u5F55\u4ECD\u53EF\u5728\u5217\u8868\u4E2D\u67E5\u770B\u3002").addDropdown(
+    new import_obsidian3.Setting(containerEl).setName("\u6587\u4EF6\u5F52\u6863\u5468\u671F").setDesc("新记录的归档方式。切换只影响新记录写入哪个文件，已有文件保持不变；「最近记录」仅读取按当前周期归档的文件。").addDropdown(
       (dropdown) => dropdown.addOption("month", "\u6309\u6708\uFF082026-06.md\uFF09").addOption("week", "\u6309\u5468\uFF082026-W23.md\uFF09").addOption("year", "\u6309\u5E74\uFF082026.md\uFF09").setValue(this.plugin.settings.filePeriod).onChange(async (value) => {
         this.plugin.settings.filePeriod = value;
         await this.plugin.saveSettings();
@@ -907,6 +913,8 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
     this.scheduleRefresh(200);
   }
   onunload() {
+    // 关闭本插件的所有主页视图，避免禁用/重载后残留死视图
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_HOMEPAGE);
     if (this._refreshTimer) {
       clearTimeout(this._refreshTimer);
       this._refreshTimer = null;

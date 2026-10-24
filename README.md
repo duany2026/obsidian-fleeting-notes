@@ -2,7 +2,7 @@
 
 ## 📥 下载安装（小白版）
 
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.1.zip`
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.2.zip`
 2. 解压，得到文件夹 `fleeting-notes-capture`
 3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
 4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
@@ -84,6 +84,12 @@
 发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
 
 ## 版本记录
+
+### 1.2.2（2026-10-24）
+
+- 修复：向 CRLF 行尾的归档文件追加记录时，新增行混入裸 LF——现新增行全部跟随文件已有行尾（与「重要日子」插件同口径）；解析侧同步剥离内容行尾的 `\r`，LF 原件与 CRLF 备份副本这类跨行尾风格的重复记录也能正确合并为一条
+- 改进：禁用/卸载插件时关闭主页视图，不再残留死视图
+- 文案：「文件归档周期」设置说明更正——切换周期后「最近记录」仅读取按当前周期归档的文件，旧周期文件中的历史不会出现在列表（原文案「历史记录仍可在列表中查看」言过其实）
 
 ### 1.2.1（2026-09-02）
 
