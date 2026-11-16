@@ -23,6 +23,16 @@
 - **容错性强**：归档文件重命名后仍可识别；日期标题带备注（如 `## 2026-06-01 会议`）也能正确追加与解析
 - **手机端可用**：`isDesktopOnly: false`，含移动端布局适配
 
+## 界面预览
+
+| 主页 | 最近记录 |
+| --- | --- |
+| ![主页](docs/screenshots/homepage-main.png) | ![最近记录](docs/screenshots/recent-records-list.png) |
+
+| 归档文件格式 | 设置页 |
+| --- | --- |
+| ![归档文件](docs/screenshots/archive-file-format.png) | ![设置页](docs/screenshots/plugin-settings.png) |
+
 ## 安装
 
 手动安装：
