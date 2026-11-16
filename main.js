@@ -46,26 +46,78 @@ function buildDayHeaderRegex(dateStr) {
   const uniq = [...new Set(variants)];
   return new RegExp(`^## (?:${uniq.join("|")})(?=\\s|$).*$`, "m");
 }
+/* 围栏遮罩：mask[i]=true 表示该行是 ```/~~~ 围栏行或位于围栏内部。
+   解析与追加共用同一口径，围栏里的 `## 2026-…`、`- HH:MM` 一律不算分区与条目。
+   只认顶格（至多缩进 3 个空格）的围栏标记：Tab 缩进行是插件写的内容行，
+   用户闪念里贴的 ``` 不能当成围栏开关；开闭必须同字符（``` 配 ```、~~~ 配 ~~~）且收尾不短于开头。
+   openMarker 供追加侧判断：文件结尾还在未闭合的围栏里时，用同一个标记收口再落新分区 */
+function fenceMask(lines) {
+  const mask = new Array(lines.length).fill(false);
+  let fence = null;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^ {0,3}(`{3,}|~{3,})/);
+    if (m) {
+      const char = m[1][0];
+      const len = m[1].length;
+      if (!fence) {
+        fence = { char, len };
+        mask[i] = true;
+      } else if (char === fence.char && len >= fence.len) {
+        fence = null;
+        mask[i] = true;
+      } else {
+        mask[i] = true;
+      }
+    } else if (fence) {
+      mask[i] = true;
+    }
+  }
+  return { mask, openMarker: fence ? fence.char.repeat(fence.len) : null };
+}
 /* 在归档全文中追加一条闪念（纯函数）：已有当日分区则插到该分区末尾（时间正序），否则文末新建当日分区。
-   CRLF 行尾的归档文件保持行尾一致：新增行跟随文件已有行尾，避免混入裸 LF */
+   CRLF 行尾的归档文件保持行尾一致：新增行跟随文件已有行尾，避免混入裸 LF。
+   分区边界与解析侧同口径：`# `/`## ` 标题都截断当日分区，且两侧都跳过代码围栏内部 */
 function applyFleetingAppend(existing, todayStr, entry) {
-  const headerMatch = existing.match(buildDayHeaderRegex(todayStr));
   const eol = existing.includes("\r\n") ? "\r\n" : "\n";
   const entryEol = eol === "\n" ? entry : entry.split("\n").join(eol);
-  if (headerMatch) {
-    const hIdx = headerMatch.index;
-    const after = existing.substring(hIdx + headerMatch[0].length);
-    const nextH = after.search(/\n## /);
-    const insertPos = nextH !== -1 ? hIdx + headerMatch[0].length + nextH : existing.length;
-    const before = existing.substring(0, insertPos).trimEnd();
-    const rest = existing.substring(insertPos);
-    // 拼接缝结构上最多两个连续换行（before 已 trimEnd，rest 为空或以 "\n## " 开头，
-    // CRLF 文件中该 \n 前的 \r 已被 trimEnd 剥离，缝上的换行统一按 eol 补齐）；
+  const lines = existing.split("\n");
+  const { mask, openMarker } = fenceMask(lines);
+  const dayRe = buildDayHeaderRegex(todayStr);
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (!mask[i] && dayRe.test(lines[i])) {
+      headerIdx = i;
+      break;
+    }
+  }
+  if (headerIdx !== -1) {
+    let insertIdx = lines.length;
+    for (let j = headerIdx + 1; j < lines.length; j++) {
+      // `# ` 也算边界：解析侧遇一级/二级标题都会重置日期归属，插到 H1 之下条目就丢进无名分区
+      if (!mask[j] && /^#{1,2} /.test(lines[j])) {
+        insertIdx = j;
+        break;
+      }
+    }
+    if (openMarker) {
+      // 尾部未闭合围栏的开启行也是边界：新条目要落在围栏开启之前，
+      // 否则被写进围栏内部，解析侧再也看不到它
+      let k = lines.length - 1;
+      while (k > headerIdx && mask[k]) k--;
+      const fenceStart = k + 1;
+      if (fenceStart > headerIdx && fenceStart < insertIdx) insertIdx = fenceStart;
+    }
+    const before = lines.slice(0, insertIdx).join("\n").trimEnd();
+    const rest = lines.slice(insertIdx).join("\n");
+    // 拼接缝结构上最多两个连续换行（before 已 trimEnd，rest 为空或以 "## " 开头）；
     // 不做全文件 \n{3,} 替换，避免压缩用户在其他日期分区有意保留的空行
-    return before + eol + entryEol + eol + rest.replace(/^\n/, eol);
+    return before + eol + entryEol + eol + rest;
   }
   const prefix = existing.trimEnd();
-  return (prefix ? prefix + eol + eol : "") + `## ${todayStr}` + eol + eol + entryEol + eol;
+  // 文件结尾还挂在未闭合围栏里时用原标记收口（~~~ 开的用 ``` 收不上），
+  // 否则新分区标题落进围栏，追加/解析两侧都认不出
+  const closer = openMarker ? eol + openMarker : "";
+  return (prefix ? prefix + closer + eol + eol : "") + `## ${todayStr}` + eol + eol + entryEol + eol;
 }
 var NoteManager = class {
   constructor(app, settings, persistSettings) {
@@ -122,10 +174,10 @@ var NoteManager = class {
      扫描时对每个文件取第一个命中的 regex 定类型，避免日文件被月 regex 误捕获。 */
   getScanRegexes() {
     return [
-      /^(\d{4}-\d{2}-\d{2}).*\.md$/,
-      /^(\d{4}-\d{2}).*\.md$/,
-      /^(\d{4}-W\d{2}).*\.md$/,
-      /^(\d{4}).*\.md$/
+      /^(\d{4}-\d{2}-\d{2}).*\.md$/i,
+      /^(\d{4}-\d{2}).*\.md$/i,
+      /^(\d{4}-W\d{2}).*\.md$/i,
+      /^(\d{4}).*\.md$/i
     ];
   }
   getCurrentPeriodId() {
@@ -148,10 +200,14 @@ var NoteManager = class {
     return null;
   }
   /* 内容层面确认是归档结构（有日期分区标题 + 至少一条"时间戳行后紧跟 Tab 缩进内容行"的条目），
-     防止把日期开头的普通笔记当备胎；只认 `- HH:MM` 行会把带时间清单的会议纪要之类误判进来 */
+     防止把日期开头的普通笔记当备胎；只认 `- HH:MM` 行会把带时间清单的会议纪要之类误判进来。
+     判定前先剥掉代码围栏，围栏里的示例格式行不算数 */
   async looksLikeArchive(file) {
     const content = await this.app.vault.cachedRead(file);
-    return /^## \d{4}-\d{1,2}-\d{1,2}(?:\s|$)/m.test(content) && /^- \d{2}:\d{2}\r?\n\t/m.test(content);
+    const lines = content.split("\n");
+    const { mask } = fenceMask(lines);
+    const body = lines.filter((_, i) => !mask[i]).join("\n");
+    return /^## \d{4}-\d{1,2}-\d{1,2}(?:\s|$)/m.test(body) && /^- \d{2}:\d{2}\r?\n\t/m.test(body);
   }
   async getCurrentFilePath() {
     const currentId = this.getCurrentPeriodId();
@@ -175,6 +231,9 @@ var NoteManager = class {
           result = f.path;
           break;
         }
+        // 同步盘的冲突副本（`2026-06 1.md`）不作写入备胎：它按定义是同一份的复制，
+        // 写进副本等于把新记录锁进同步盘迟早要清掉的残片里
+        if (/\s\d+\.md$/i.test(f.name)) continue;
         // 非标准命名：内容确实符合归档格式才可作为备胎，避免把日期开头的普通笔记当归档文件写入
         if (!fallback && await this.looksLikeArchive(f)) {
           fallback = f.path;
@@ -252,6 +311,9 @@ var NoteManager = class {
     try {
       // vault.process 原子地"读最新内容→拼接→写回"，消除与同步盘/外部编辑之间的整文件覆盖竞态
       await this.app.vault.process(file, (existing) => applyFleetingAppend(existing, todayStr, entry));
+      // 回声标记一次性消费：紧随自写的那个 modify 事件不再触发整页重绘（调用处已经刷过），
+      // 之后同路径的任何改动照常刷新
+      this.lastWritePath = file.path;
     } catch (e) {
       // 只回滚本次调用自己创建的文件，避免误删外部恰好同名创建的文件
       if (createdByUs) {
@@ -363,14 +425,22 @@ var NoteManager = class {
     if (!(file instanceof import_obsidian.TFile)) return;
     const content = await this.app.vault.cachedRead(file);
     const lines = content.split("\n");
+    const { mask } = fenceMask(lines);
     let currentDate = "";
     const localSeen = /* @__PURE__ */ new Map();
     for (let i = 0; i < lines.length; i++) {
+      if (mask[i]) continue;
       const dateMatch = lines[i].match(/^## (\d{4})-(\d{1,2})-(\d{1,2})(?=\s|$)/);
       if (dateMatch) {
         // 归一化为补零日期：未补零的手写标题（如 2026-9-5）也能与插件生成的分区正确归组；
         // 边界 (?=\s|$) 与追加侧 buildDayHeaderRegex 一致：`## 2026-06-01会议`（无空格）视为新分区，不再误归组
         currentDate = `${dateMatch[1]}-${dateMatch[2].padStart(2, "0")}-${dateMatch[3].padStart(2, "0")}`;
+        continue;
+      }
+      // 其他一级/二级标题重置日期归属：追加侧把任意 `# `/`## ` 当分区边界，
+      // 不重置的话用户手写在 `## 杂记` 下的 `- HH:MM` 行会被算进上一个日期分区
+      if (/^#{1,2} /.test(lines[i])) {
+        currentDate = "";
         continue;
       }
       const timeMatch = lines[i].match(/^- (\d{2}:\d{2})/);
@@ -688,11 +758,15 @@ var HomepageView = class extends import_obsidian2.ItemView {
     // 尝试（等待文档就绪），两次尝试由 focused 去重
     tryFocus(this.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView));
   }
-  /* entry.line 是解析时的快照，文件被编辑过会漂移；先校验快照行，失效则按 日期+时间 在文件内重搜 */
+  /* entry.line 是解析时的快照，文件被编辑过会漂移；先校验快照行（形状 + 时间戳都要对上），失效则按 日期+时间 在文件内重搜 */
   async resolveEntryLine(file, line, entry) {
     const content = await this.app.vault.cachedRead(file);
     const lines = content.split("\n");
-    if (line >= 0 && line < lines.length && /^- \d{2}:\d{2}/.test(lines[line])) {
+    // 只验形状的话，文件编辑后同一行号换上另一条记录的时间也会被当成命中，静默跳到错的那条
+    const snapshotOk = entry
+      ? line >= 0 && line < lines.length && new RegExp(`^- ${entry.time}(?:\\s|$)`).test(lines[line])
+      : line >= 0 && line < lines.length && /^- \d{2}:\d{2}/.test(lines[line]);
+    if (snapshotOk) {
       return line;
     }
     if (!entry) return -1;
@@ -853,6 +927,11 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
     );
     this.registerEvent(
       this.app.vault.on("modify", (file) => {
+        // 自写回声只跳过一次：这瓶 modify 是本插件刚才写入触发的，submit 流程已经刷过界面
+        if (file instanceof import_obsidian4.TFile && this.noteManager.lastWritePath === file.path) {
+          this.noteManager.lastWritePath = null;
+          return;
+        }
         if (this.isRelevantArchiveFile(file)) this.scheduleRefresh(300);
       })
     );
@@ -869,6 +948,17 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => this.handleFileRename(file, oldPath))
     );
+    // 跨零点把「今日」翻篇：徽标与显示范围是渲染时的快照，不主动刷新会整晚停在昨天；
+    // 同时清掉按周期算好的归档路径缓存，跨月/跨周/跨年后新记录要落到新文件
+    this._lastDateStr = this.noteManager.getTodayStr();
+    this.registerInterval(window.setInterval(() => {
+      const today = this.noteManager.getTodayStr();
+      if (today !== this._lastDateStr) {
+        this._lastDateStr = today;
+        this.noteManager.invalidateFilePathCache();
+        this.scheduleRefresh(0);
+      }
+    }, 60 * 1000));
     this.addSettingTab(new FleetingSettingTab(this.app, this));
   }
   scheduleRefresh(delay) {
@@ -922,12 +1012,13 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
     if (this._saveTimer) {
       clearTimeout(this._saveTimer);
       this._saveTimer = null;
-      if (this._saveResolve) {
-        this._saveResolve();
-        this._saveResolve = null;
-      }
-      // 300ms 防抖窗口内禁用/退出时立即落盘，避免最后一批设置变更丢失
-      void this.saveData(this.settings).catch((e) => console.error("FleetingNotes saveData on unload failed:", e));
+      // 300ms 防抖窗口内禁用/退出时立即落盘，避免最后一批设置变更丢失；
+      // 等待中的调用方在落盘（成功或失败）后统一放行
+      const resolvers = this._saveResolvers || [];
+      this._saveResolvers = [];
+      void this.saveData(this.settings).catch((e) => console.error("FleetingNotes saveData on unload failed:", e)).finally(() => {
+        for (const r of resolvers) r();
+      });
     }
   }
   /* 校验存储目录输入：反斜杠转正斜杠、去首尾空白、去尾斜杠、禁止 .. 段 */
@@ -951,23 +1042,23 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
     this.scheduleRefresh(0);
     if (this._saveTimer) {
       clearTimeout(this._saveTimer);
-      if (this._saveResolve) {
-        this._saveResolve();
-        this._saveResolve = null;
-      }
     }
+    // 防抖窗口内多次调用都等最后一次真实落盘：旧实现会把早前的 promise 提前 resolve，
+    // 调用方 await 到的并不是"已保存"
+    this._saveResolvers = this._saveResolvers || [];
     return new Promise((resolve) => {
-      this._saveResolve = resolve;
+      this._saveResolvers.push(resolve);
       this._saveTimer = setTimeout(async () => {
         this._saveTimer = null;
-        this._saveResolve = null;
+        const resolvers = this._saveResolvers;
+        this._saveResolvers = [];
         try {
           await this.saveData(this.settings);
         } catch (e) {
           console.error("FleetingNotes saveData failed:", e);
           new import_obsidian4.Notice("闪念笔记：设置保存失败");
         }
-        resolve();
+        for (const r of resolvers) r();
       }, 300);
     });
   }
