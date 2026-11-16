@@ -48,20 +48,31 @@ function buildDayHeaderRegex(dateStr) {
 }
 /* 围栏遮罩：mask[i]=true 表示该行是 ```/~~~ 围栏行或位于围栏内部。
    解析与追加共用同一口径，围栏里的 `## 2026-…`、`- HH:MM` 一律不算分区与条目。
-   openAtEnd 供追加侧判断：文件结尾还在未闭合的围栏里时先补上收尾围栏再落新分区 */
+   只认顶格（至多缩进 3 个空格）的围栏标记：Tab 缩进行是插件写的内容行，
+   用户闪念里贴的 ``` 不能当成围栏开关；开闭必须同字符（``` 配 ```、~~~ 配 ~~~）且收尾不短于开头。
+   openMarker 供追加侧判断：文件结尾还在未闭合的围栏里时，用同一个标记收口再落新分区 */
 function fenceMask(lines) {
   const mask = new Array(lines.length).fill(false);
-  let inFence = false;
+  let fence = null;
   for (let i = 0; i < lines.length; i++) {
-    const t = lines[i].trim();
-    if (/^(`{3,}|~{3,})/.test(t)) {
-      mask[i] = true;
-      inFence = !inFence;
-    } else if (inFence) {
+    const m = lines[i].match(/^ {0,3}(`{3,}|~{3,})/);
+    if (m) {
+      const char = m[1][0];
+      const len = m[1].length;
+      if (!fence) {
+        fence = { char, len };
+        mask[i] = true;
+      } else if (char === fence.char && len >= fence.len) {
+        fence = null;
+        mask[i] = true;
+      } else {
+        mask[i] = true;
+      }
+    } else if (fence) {
       mask[i] = true;
     }
   }
-  return { mask, openAtEnd: inFence };
+  return { mask, openMarker: fence ? fence.char.repeat(fence.len) : null };
 }
 /* 在归档全文中追加一条闪念（纯函数）：已有当日分区则插到该分区末尾（时间正序），否则文末新建当日分区。
    CRLF 行尾的归档文件保持行尾一致：新增行跟随文件已有行尾，避免混入裸 LF。
@@ -70,7 +81,7 @@ function applyFleetingAppend(existing, todayStr, entry) {
   const eol = existing.includes("\r\n") ? "\r\n" : "\n";
   const entryEol = eol === "\n" ? entry : entry.split("\n").join(eol);
   const lines = existing.split("\n");
-  const { mask, openAtEnd } = fenceMask(lines);
+  const { mask, openMarker } = fenceMask(lines);
   const dayRe = buildDayHeaderRegex(todayStr);
   let headerIdx = -1;
   for (let i = 0; i < lines.length; i++) {
@@ -88,6 +99,14 @@ function applyFleetingAppend(existing, todayStr, entry) {
         break;
       }
     }
+    if (openMarker) {
+      // 尾部未闭合围栏的开启行也是边界：新条目要落在围栏开启之前，
+      // 否则被写进围栏内部，解析侧再也看不到它
+      let k = lines.length - 1;
+      while (k > headerIdx && mask[k]) k--;
+      const fenceStart = k + 1;
+      if (fenceStart > headerIdx && fenceStart < insertIdx) insertIdx = fenceStart;
+    }
     const before = lines.slice(0, insertIdx).join("\n").trimEnd();
     const rest = lines.slice(insertIdx).join("\n");
     // 拼接缝结构上最多两个连续换行（before 已 trimEnd，rest 为空或以 "## " 开头）；
@@ -95,8 +114,9 @@ function applyFleetingAppend(existing, todayStr, entry) {
     return before + eol + entryEol + eol + rest;
   }
   const prefix = existing.trimEnd();
-  // 文件结尾还挂在未闭合围栏里时先收口：否则新分区标题落进围栏，追加/解析两侧都认不出
-  const closer = openAtEnd ? eol + "```" : "";
+  // 文件结尾还挂在未闭合围栏里时用原标记收口（~~~ 开的用 ``` 收不上），
+  // 否则新分区标题落进围栏，追加/解析两侧都认不出
+  const closer = openMarker ? eol + openMarker : "";
   return (prefix ? prefix + closer + eol + eol : "") + `## ${todayStr}` + eol + eol + entryEol + eol;
 }
 var NoteManager = class {
