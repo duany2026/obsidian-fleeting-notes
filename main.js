@@ -309,12 +309,15 @@ var NoteManager = class {
     const indented = content.split("\n").map((l) => "\t" + l).join("\n");
     const entry = `- ${timeStr}\n${indented}`;
     try {
-      // vault.process 原子地"读最新内容→拼接→写回"，消除与同步盘/外部编辑之间的整文件覆盖竞态
+      // vault.process 原子地"读最新内容→拼接→写回"，消除与同步盘/外部编辑之间的整文件覆盖竞态。
+      // 回声标记必须先标再写：modify 事件由宿主异发派发，写完成后才标的话，
+      // 事件可能先于赋值到达，自写回声没被消费就多刷一次；写失败时在 catch 里撤掉
+      this.lastWritePath = file.path;
       await this.app.vault.process(file, (existing) => applyFleetingAppend(existing, todayStr, entry));
       // 回声标记一次性消费：紧随自写的那个 modify 事件不再触发整页重绘（调用处已经刷过），
       // 之后同路径的任何改动照常刷新
-      this.lastWritePath = file.path;
     } catch (e) {
+      this.lastWritePath = null;
       // 只回滚本次调用自己创建的文件，避免误删外部恰好同名创建的文件
       if (createdByUs) {
         try {
@@ -519,6 +522,14 @@ var HomepageView = class extends import_obsidian2.ItemView {
     await this.refreshContent();
   }
   async onClose() {
+    if (this._openFileTimer) {
+      clearTimeout(this._openFileTimer);
+      this._openFileTimer = null;
+    }
+    if (this._inputErrorTimer) {
+      clearTimeout(this._inputErrorTimer);
+      this._inputErrorTimer = null;
+    }
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
@@ -747,6 +758,9 @@ var HomepageView = class extends import_obsidian2.ItemView {
     });
     this.registerEvent(ref);
     const timeout = setTimeout(cleanup, 5e3);
+    // 跟踪起来，onClose 时统一清：视图关了以后再触发 cleanup 虽无害（只 offref/clear），
+    // 但裸定时器是个悬空引用，插件重载时也一样留着
+    this._openFileTimer = timeout;
     try {
       await leaf.openFile(file);
     } catch (e) {
@@ -785,6 +799,8 @@ var HomepageView = class extends import_obsidian2.ItemView {
      短重试直到行数覆盖目标行。返回是否成功定位 */
   async focusLineWhenReady(view, line) {
     for (let tries = 0; tries < 20; tries++) {
+      // 视图已关（容器脱离文档）就别再等了：setCursor 落在死视图上没意义
+      if (view && view.containerEl && !view.containerEl.isConnected) return false;
       const editor = view && view.editor;
       if (editor && line >= 0 && editor.lineCount() > line) {
         editor.setCursor({ line, ch: 0 });
@@ -804,7 +820,12 @@ var HomepageView = class extends import_obsidian2.ItemView {
     const text = textArea.value.trim();
     if (!text) {
       textArea.addClass("fn-input-error");
-      setTimeout(() => textArea.removeClass("fn-input-error"), 1500);
+      // 入集合跟踪：onClose 统一清，避免视图关了以后定时器还在死 DOM 上跑
+      if (this._inputErrorTimer) clearTimeout(this._inputErrorTimer);
+      this._inputErrorTimer = setTimeout(() => {
+        this._inputErrorTimer = null;
+        textArea.removeClass("fn-input-error");
+      }, 1500);
       return;
     }
     this.submitLocked = true;
