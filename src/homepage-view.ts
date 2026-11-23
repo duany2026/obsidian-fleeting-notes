@@ -111,8 +111,8 @@ export class HomepageView extends ItemView {
     const submitBtn = inputArea.createEl("button", { cls: "fn-submit-btn" });
     submitBtn.createSpan({ text: "\u8BB0\u5F55" });
     const autoResize = () => {
-      textArea.style.height = "auto";
-      textArea.style.height = Math.min(textArea.scrollHeight, 150) + "px";
+      textArea.setCssProps({ height: "auto" });
+      textArea.setCssProps({ height: Math.min(textArea.scrollHeight, 150) + "px" });
     };
     this._autoResize = autoResize;
     submitBtn.addEventListener("click", () => this.handleSubmit(textArea));
@@ -126,8 +126,7 @@ export class HomepageView extends ItemView {
     const listSection = root.createDiv({ cls: "fn-list-section" });
     const listHeader = listSection.createDiv({ cls: "fn-list-header" });
     listHeader.createSpan({ cls: "fn-list-label", text: "\u6700\u8FD1\u8BB0\u5F55" });
-    this.listCount = listHeader.createSpan({ cls: "fn-list-count" });
-    this.listCount.style.display = "none";
+    this.listCount = listHeader.createSpan({ cls: "fn-list-count fn-hidden" });
     this.listEl = listSection.createDiv({ cls: "fn-list" });
     return root;
   }
@@ -170,12 +169,8 @@ export class HomepageView extends ItemView {
         }
       });
       if (this.listCount) {
-        if (filtered.length > 0) {
-          this.listCount.setText(`${filtered.length}`);
-          this.listCount.style.display = "";
-        } else {
-          this.listCount.style.display = "none";
-        }
+        this.listCount.setText(`${filtered.length}`);
+        this.listCount.toggleClass("fn-hidden", filtered.length === 0);
       }
       if (!this.listEl) {
         this.rendering = false;

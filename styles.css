@@ -220,6 +220,9 @@
 	font-weight: 600;
 	color: var(--text-muted);
 }
+.fn-list-count.fn-hidden {
+	display: none;
+}
 
 /* ============================================
    日期分隔线（时间线风格）

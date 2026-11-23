@@ -2,7 +2,7 @@
 
 ## 📥 下载安装（小白版）
 
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.6.zip`
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.7.zip`
 2. 解压，得到文件夹 `fleeting-notes-capture`
 3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
 4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
@@ -96,6 +96,13 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
 
 ## 版本记录
+
+### 1.2.7（2026-11-24）
+
+- 上架合规：动态样式改用 Obsidian 推荐的 CSS 属性接口与类名，设置页标题统一使用原生设置组件
+- 上架合规：卸载时不再强制移动用户的主页分页，打开主页改用兼容旧版的激活接口
+- 最低 Obsidian 版本调整为 1.4.0，以使用创建归档目录所需的官方接口
+- 功能、数据格式和操作方式不变
 
 ### 1.2.6（2026-11-24）
 
