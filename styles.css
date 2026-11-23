@@ -128,7 +128,11 @@
 .fn-input-area:focus-within {
 	border-color: var(--interactive-accent);
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-	box-shadow: 0 2px 12px color-mix(in srgb, var(--interactive-accent) 15%, transparent);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+	.fn-input-area:focus-within {
+		box-shadow: 0 2px 12px color-mix(in srgb, var(--interactive-accent) 15%, transparent);
+	}
 }
 
 .fn-input {
@@ -243,7 +247,11 @@
 .fn-sep-dot-today {
 	background: var(--interactive-accent);
 	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+	.fn-sep-dot-today {
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+	}
 }
 .fn-sep-label {
 	display: flex;
@@ -282,8 +290,12 @@
 .fn-item:hover {
 	border-color: var(--background-modifier-border-hover);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-	border-color: color-mix(in srgb, var(--interactive-accent) 40%, var(--background-modifier-border));
-	box-shadow: 0 2px 8px color-mix(in srgb, var(--interactive-accent) 8%, transparent);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+	.fn-item:hover {
+		border-color: color-mix(in srgb, var(--interactive-accent) 40%, var(--background-modifier-border));
+		box-shadow: 0 2px 8px color-mix(in srgb, var(--interactive-accent) 8%, transparent);
+	}
 }
 
 /* 内容列 */

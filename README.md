@@ -2,7 +2,7 @@
 
 ## 📥 下载安装（小白版）
 
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.5.zip`
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.6.zip`
 2. 解压，得到文件夹 `fleeting-notes-capture`
 3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
 4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
@@ -10,6 +10,8 @@
 
 > 进阶：也可以安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件，添加仓库地址 `https://github.com/duany2026/obsidian-fleeting-notes`，以后可自动更新。
 
+
+An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes are shown on the home view, and the plugin works on mobile.
 
 一个 Obsidian 插件：在主页面板内快速记录零散想法（闪念），自动按周期归档到 Markdown 文件，按日期分组展示，支持手机端。
 
@@ -33,7 +35,7 @@
 | --- | --- |
 | ![归档文件](docs/screenshots/archive-file-format.png) | ![设置页](docs/screenshots/plugin-settings.png) |
 
-## 安装
+## 安装 / Installation
 
 手动安装：
 
@@ -41,7 +43,7 @@
 2. 放入 `<你的库>/.obsidian/plugins/fleeting-notes-capture/`
 3. 设置 → 第三方插件 → 启用「闪念笔记」
 
-## 使用方法
+## 使用方法 / Usage
 
 - 点击左侧功能区闪电图标，或运行命令 **打开闪念笔记主页**
 - 在输入框中写入内容，点击「记录」或按 `Ctrl+Enter` 保存
@@ -89,11 +91,18 @@
 
 ## 开发
 
-插件由 `src/` 下的 TypeScript 源码经 esbuild 打包为 `main.js`，本仓库发布产物不含源码。本地修改 `main.js` 后重启 Obsidian 或重载插件即可生效。
+插件由 `src/` 下的 TypeScript 源码经 esbuild 打包为 `main.js`，源码随仓库保存。运行 `npm install` 后执行 `npm run build` 可重新生成 `main.js`；发布压缩包只包含运行所需文件，不携带 `src/` 与开发依赖。
 
 发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
 
 ## 版本记录
+
+### 1.2.6（2026-11-24）
+
+- 上架合规：把当前版本的 TypeScript 源码纳入仓库，补回可复现的 esbuild 构建配置
+- 上架合规：manifest 描述改用完整英文句子，README 增加英文概述
+- 清理样式中重复的 CSS 属性声明
+- 功能、数据格式和操作方式不变
 
 ### 1.2.5（2026-11-24）
 
