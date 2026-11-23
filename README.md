@@ -2,7 +2,7 @@
 
 ## 📥 下载安装（小白版）
 
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.2.zip`
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.5.zip`
 2. 解压，得到文件夹 `fleeting-notes-capture`
 3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
 4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
@@ -94,6 +94,11 @@
 发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
 
 ## 版本记录
+
+### 1.2.5（2026-11-24）
+
+- 上架合规：目录显示名改为 `Fleeting Notes Capture`（中文名仍为「闪念笔记」），符合 Obsidian 仅允许 Basic Latin 字符的命名规则
+- 功能、数据格式和操作方式不变
 
 ### 1.2.4（2026-11-17）
 
