@@ -1,30 +1,12 @@
 # 闪念笔记 (Fleeting Notes Capture)
 
-## 📥 下载安装（小白版）
-
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.3.0.zip`
-2. 解压，得到文件夹 `fleeting-notes-capture`
-3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
-4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
-5. 重启 Obsidian → 设置 → 第三方插件 → 关闭「安全模式」→ 在已安装插件列表中启用「闪念笔记」
-
-> 进阶：也可以安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件，添加仓库地址 `https://github.com/duany2026/obsidian-fleeting-notes`，以后可自动更新。
-
-
-An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes are shown on the home view, and the plugin works on mobile. The interface follows Obsidian's language setting (Simplified Chinese, Traditional Chinese, or English; any other language falls back to English). Archive files use a language-neutral format (`2026-06.md`, `## 2026-06-01`, `- 13:40`), so switching the interface language never affects existing notes.
-
 一个 Obsidian 插件：在主页面板内快速记录零散想法（闪念），自动按周期归档到 Markdown 文件，按日期分组展示，支持手机端。
 
-## 功能
+安装：Obsidian 设置 → 第三方插件 → 浏览，搜「Fleeting Notes Capture」→ 安装启用。手动安装 / BRAT 方式见[文末](#安装)。
 
-- **快速记录**：主页输入框写入内容，点击「记录」或按 `Ctrl+Enter`（桌面端）保存
-- **自动归档**：记录按周期写入一个归档文件，按日期分组、同日条目按时间正序追加（主页列表最新在前）
-- **灵活周期**：支持按月（`2026-06.md`）、按周（`2026-W23.md`）、按年（`2026.md`）归档
-- **最近记录**：主页展示本月 / 本周 / 今日记录，带计数徽章
-- **定位原文**：点击条目右侧箭头图标，直接跳转到归档文件中对应位置
-- **容错性强**：归档文件重命名后仍可识别；日期标题带备注（如 `## 2026-06-01 会议`）也能正确追加与解析
-- **手机端可用**：`isDesktopOnly: false`，含移动端布局适配
-- **界面三语**：跟随 Obsidian 的界面语言，显示简体中文、繁体中文或英文（其他语言显示英文），无需单独设置
+> **English speakers:** see the [English section](#english) below.
+
+---
 
 ## 界面预览
 
@@ -36,22 +18,29 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 | --- | --- |
 | ![归档文件](docs/screenshots/archive-file-format.png) | ![设置页](docs/screenshots/plugin-settings.png) |
 
-## 安装 / Installation
+---
 
-手动安装：
+## 功能特性
 
-1. 下载 `main.js`、`manifest.json`、`styles.css`
-2. 放入 `<你的库>/.obsidian/plugins/fleeting-notes-capture/`
-3. 设置 → 第三方插件 → 启用「闪念笔记」
+- **快速记录** — 主页输入框写入内容，点击「记录」或按 `Ctrl+Enter`（桌面端）保存
+- **自动归档** — 记录按周期写入一个归档文件，按日期分组、同日条目按时间正序追加（主页列表最新在前）
+- **灵活周期** — 支持按月（`2026-06.md`）、按周（`2026-W23.md`）、按年（`2026.md`）归档
+- **最近记录** — 主页展示本月 / 本周 / 今日记录，带计数徽章
+- **定位原文** — 点击条目右侧箭头图标，直接跳转到归档文件中对应位置
+- **容错性强** — 归档文件重命名后仍可识别；日期标题带备注（如 `## 2026-06-01 会议`）也能正确追加与解析
+- **手机端可用** — `isDesktopOnly: false`，含移动端布局适配
+- **简体 / 繁体 / English** — 界面跟随 Obsidian 语言设置；其他语言显示英文
 
-## 使用方法 / Usage
+---
+
+## 使用方法
 
 - 点击左侧功能区闪电图标，或运行命令 **打开闪念笔记主页**
 - 在输入框中写入内容，点击「记录」或按 `Ctrl+Enter` 保存
 - 记录右侧箭头图标可定位到原文件对应行
 - 命令 **打开当前归档文件** 可直接打开正在写入的归档文件
 
-## 文件格式
+## 数据文件
 
 归档文件示例：
 
@@ -76,6 +65,8 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 - `- HH:MM` 为条目时间戳，内容以 Tab 缩进，支持多行
 - 手写的日期标题支持不补零（如 `## 2026-9-5`），插件会自动归入对应日期
 
+归档格式只用日期和时间、与语言无关——切换界面语言后，原来的文件照常读写，不会改动。
+
 ## 设置项
 
 | 设置 | 说明 |
@@ -84,7 +75,7 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 | 文件归档周期 | 新记录按 月 / 周 / 年 归档，切换不影响已有文件 |
 | 主页显示范围 | 「最近记录」区域展示 本月 / 本周 / 今日 |
 
-> 界面语言不提供单独选项：始终跟随 Obsidian 的界面语言（简体中文 / 繁体中文 / English，其他语言显示英文）。归档文件的文件名和内容格式只用日期和时间，与语言无关——切换界面语言后，原来的文件照常读写，不会改动。
+> 界面语言不提供单独选项：始终跟随 Obsidian 的界面语言（简体中文 / 繁体中文 / English，其他语言显示英文）。
 
 ## 行为说明
 
@@ -92,11 +83,32 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 - 修改存储目录不会自动迁移已有文件，可手动移动后由插件重新识别
 - 同一周期内若存在多个可识别文件，写入目标以标准文件名为准
 
-## 开发
+---
 
-插件由 `src/` 下的 TypeScript 源码经 esbuild 打包为 `main.js`，源码随仓库保存。运行 `npm install` 后执行 `npm run build` 可重新生成 `main.js`；发布压缩包只包含运行所需文件，不携带 `src/` 与开发依赖。
+## English
 
-发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
+An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes show on the home view, and it works on mobile.
+
+- **UI languages**: follows Obsidian's language — Simplified Chinese, Traditional Chinese, or English; anything else falls back to English. No separate setting.
+- **Archive format is language-neutral** (`2026-06.md`, `## 2026-06-01`, `- 13:40`), so switching the interface language never affects existing notes.
+- **Usage**: lightning ribbon icon (or "Open fleeting notes" command) → type, `Ctrl+Enter` to save → arrow icon jumps to the source line. Renamed archive files are still recognized.
+- MIT license — see [LICENSE](./LICENSE).
+
+---
+
+## 安装
+
+**社区市场（推荐）**：Obsidian 设置 → 第三方插件 → 浏览 → 搜「Fleeting Notes Capture」→ 安装启用。
+
+**手动安装**：
+
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 ZIP（或 `main.js`、`manifest.json`、`styles.css` 三个文件）
+2. 解压得到文件夹 `fleeting-notes-capture`，放进 `<库>/.obsidian/plugins/`
+3. 重启 Obsidian → 设置 → 第三方插件 → 启用「Fleeting Notes Capture」
+
+**BRAT**：安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件，添加仓库地址 `https://github.com/duany2026/obsidian-fleeting-notes`，可自动更新。
+
+---
 
 ## 版本记录
 
@@ -166,3 +178,15 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 - 体验：同分钟同内容的重复记录正确显示；带时间清单的普通笔记不再被误认成归档文件；拆分多开的主页视图实时同步刷新；长期使用不再积累冗余回调
 
 > 1.2.0 及更早版本的变更未单独记录版本日志。
+
+---
+
+## 开发
+
+插件由 `src/` 下的 TypeScript 源码经 esbuild 打包为 `main.js`，源码随仓库保存。运行 `npm install` 后执行 `npm run build` 可重新生成 `main.js`；发布压缩包只包含运行所需文件，不携带 `src/` 与开发依赖。
+
+发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
+
+## License
+
+MIT — 见 [LICENSE](./LICENSE)。作者：**duany**（[@duany2026](https://github.com/duany2026)）
