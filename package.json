@@ -1,6 +1,6 @@
 {
   "name": "obsidian-fleeting-notes",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "private": true,
   "description": "快速记录闪念笔记的 Obsidian 插件",
   "main": "main.js",

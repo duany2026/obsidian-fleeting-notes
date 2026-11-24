@@ -97,6 +97,12 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 
 ## 版本记录
 
+### 1.2.8（2026-11-24）
+
+- 上架合规：打开主页改用官方推荐的 `revealLeaf` 接口
+- 发布工作流改为从 TypeScript 源码现场构建 main.js，保证发行版与源码一致
+- 功能、数据格式和操作方式不变
+
 ### 1.2.7（2026-11-24）
 
 - 上架合规：动态样式改用 Obsidian 推荐的 CSS 属性接口与类名，设置页标题统一使用原生设置组件
