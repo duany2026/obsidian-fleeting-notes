@@ -4,7 +4,7 @@
 
 安装：Obsidian 设置 → 第三方插件 → 浏览，搜「Fleeting Notes Capture」→ 安装启用。手动安装 / BRAT 方式见[文末](#安装)。
 
-## English
+## Fleeting Notes Capture
 
 An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes show on the home view, and it works on mobile.
 
