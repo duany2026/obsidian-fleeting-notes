@@ -1,5 +1,6 @@
 import { App, Notice, TFile, TFolder, normalizePath } from "obsidian";
 import { FleetingNotesSettings, RecentEntry } from "./types";
+import { errorText, tr } from "./i18n";
 
 /* 构造匹配某天分区标题的正则：同时兼容补零与不补零两种日期写法 */
 export function buildDayHeaderRegex(dateStr: string): RegExp {
@@ -273,7 +274,7 @@ export class NoteManager {
       file = ensured.file;
       createdByUs = ensured.created;
     } catch (e) {
-      throw new Error(`打开文件失败：${filePath} — ${e && e.message ? e.message : e}`);
+      throw new Error(tr("error.openFile", { path: String(filePath), msg: errorText(e) }));
     }
     const todayStr = this.getTodayStr();
     const timeStr = this.getTimeStr();
@@ -297,7 +298,7 @@ export class NoteManager {
           console.error("FleetingNotes cleanup created file failed:", deleteErr);
         }
       }
-      throw new Error(`写入文件失败：${file.path} — ${e && e.message ? e.message : e}`);
+      throw new Error(tr("error.writeFile", { path: String(file.path), msg: errorText(e) }));
     }
     // 写入目标不是标准命名的归档文件时，首次以中性文案告知去向并记住（如用户有意
     // 给归档文件加了后缀属正常用法），之后写入不再打扰；误写防护由备胎的内容识别兜底
@@ -306,7 +307,7 @@ export class NoteManager {
       this._acceptedFallbackNames.add(file.name);
       this.settings.acceptedFallbackNames = [...this._acceptedFallbackNames];
       if (this.persistSettings) this.persistSettings();
-      new Notice(`闪念笔记：本次及之后的记录将写入「${file.name}」`);
+      new Notice(tr("notice.writeTarget", { name: String(file.name) }));
     }
   }
   /* ---------- 获取最近记录 ---------- */

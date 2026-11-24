@@ -1,6 +1,7 @@
 import { ItemView, MarkdownView, Notice, TFile, WorkspaceLeaf, setIcon } from "obsidian";
 import { buildDayHeaderRegex, NoteManager } from "./note-manager";
 import { FleetingNotesSettings, RecentEntry } from "./types";
+import { errorText, I18nKey, tr } from "./i18n";
 
 export const VIEW_TYPE_HOMEPAGE = "fleeting-notes-homepage";
 export class HomepageView extends ItemView {
@@ -38,7 +39,7 @@ export class HomepageView extends ItemView {
     return VIEW_TYPE_HOMEPAGE;
   }
   getDisplayText() {
-    return "\u95EA\u5FF5\u7B14\u8BB0";
+    return tr("plugin.name");
   }
   getIcon() {
     return "zap";
@@ -106,10 +107,10 @@ export class HomepageView extends ItemView {
     const inputArea = stickyTop.createDiv({ cls: "fn-input-area" });
     const textArea = inputArea.createEl("textarea", {
       cls: "fn-input",
-      attr: { placeholder: "\u8BB0\u4E0B\u6B64\u523B\u7684\u60F3\u6CD5\u2026", rows: "3" }
+      attr: { placeholder: tr("view.placeholder"), rows: "3" }
     });
     const submitBtn = inputArea.createEl("button", { cls: "fn-submit-btn" });
-    submitBtn.createSpan({ text: "\u8BB0\u5F55" });
+    submitBtn.createSpan({ text: tr("view.submit") });
     const autoResize = () => {
       textArea.setCssProps({ height: "auto" });
       textArea.setCssProps({ height: Math.min(textArea.scrollHeight, 150) + "px" });
@@ -125,7 +126,7 @@ export class HomepageView extends ItemView {
     });
     const listSection = root.createDiv({ cls: "fn-list-section" });
     const listHeader = listSection.createDiv({ cls: "fn-list-header" });
-    listHeader.createSpan({ cls: "fn-list-label", text: "\u6700\u8FD1\u8BB0\u5F55" });
+    listHeader.createSpan({ cls: "fn-list-label", text: tr("view.recent") });
     this.listCount = listHeader.createSpan({ cls: "fn-list-count fn-hidden" });
     this.listEl = listSection.createDiv({ cls: "fn-list" });
     return root;
@@ -141,23 +142,26 @@ export class HomepageView extends ItemView {
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       if (this.headerDate) {
-        const weekdays = ["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"];
-        this.headerDate.setText(`${now.getMonth() + 1}\u6708${now.getDate()}\u65E5 \u5468${weekdays[now.getDay()]}`);
+        this.headerDate.setText(tr("view.headerDate", {
+          month: tr(`month.${now.getMonth() + 1}` as I18nKey),
+          day: now.getDate(),
+          weekday: tr(`weekday.${now.getDay()}` as I18nKey)
+        }));
       }
       const todayCount = entries.filter((e) => e.date === todayStr).length;
       if (this.todayBadge)
-        this.todayBadge.setText(`\u4ECA\u65E5 ${todayCount}`);
+        this.todayBadge.setText(tr("view.badge.today", { n: todayCount }));
       const weekStart = new Date(now);
       const daysFromMonday = now.getDay() === 0 ? 6 : now.getDay() - 1;
       weekStart.setDate(now.getDate() - daysFromMonday);
       const weekStartStr = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, "0")}-${String(weekStart.getDate()).padStart(2, "0")}`;
       const weekCount = entries.filter((e) => e.date >= weekStartStr).length;
       if (this.weekBadge)
-        this.weekBadge.setText(`\u672C\u5468 ${weekCount}`);
+        this.weekBadge.setText(tr("view.badge.week", { n: weekCount }));
       const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
       const monthCount = entries.filter((e) => e.date.startsWith(monthStr)).length;
       if (this.monthBadge)
-        this.monthBadge.setText(`\u672C\u6708 ${monthCount}`);
+        this.monthBadge.setText(tr("view.badge.month", { n: monthCount }));
       const filtered = entries.filter((e) => {
         switch (this.settings.displayRange) {
           case "today":
@@ -182,11 +186,11 @@ export class HomepageView extends ItemView {
         const emptyIcon = empty.createDiv({ cls: "fn-empty-icon" });
         setIcon(emptyIcon, "sparkles");
         if (entries.length === 0) {
-          empty.createDiv({ cls: "fn-empty-text", text: "\u8FD8\u6CA1\u6709\u8BB0\u5F55" });
-          empty.createDiv({ cls: "fn-empty-sub", text: "\u5199\u4E0B\u4F60\u7684\u7B2C\u4E00\u4E2A\u60F3\u6CD5\u5427" });
+          empty.createDiv({ cls: "fn-empty-text", text: tr("view.empty.title") });
+          empty.createDiv({ cls: "fn-empty-sub", text: tr("view.empty.sub") });
         } else {
-          empty.createDiv({ cls: "fn-empty-text", text: "\u5F53\u524D\u8303\u56F4\u65E0\u8BB0\u5F55" });
-          empty.createDiv({ cls: "fn-empty-sub", text: "\u53EF\u5728\u8BBE\u7F6E\u4E2D\u8C03\u6574\u663E\u793A\u8303\u56F4" });
+          empty.createDiv({ cls: "fn-empty-text", text: tr("view.emptyRange.title") });
+          empty.createDiv({ cls: "fn-empty-sub", text: tr("view.emptyRange.sub") });
         }
       } else {
         let lastDate = "";
@@ -200,11 +204,11 @@ export class HomepageView extends ItemView {
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
             if (entry.date === todayStr) {
-              sepLabel.createSpan({ cls: "fn-sep-today", text: "\u4ECA\u5929" });
+              sepLabel.createSpan({ cls: "fn-sep-today", text: tr("view.today") });
               sepLabel.createSpan({ cls: "fn-sep-date", text: entry.date });
               sepDot.addClass("fn-sep-dot-today");
             } else if (entry.date === yesterdayStr) {
-              sepLabel.createSpan({ cls: "fn-sep-today", text: "\u6628\u5929" });
+              sepLabel.createSpan({ cls: "fn-sep-today", text: tr("view.yesterday") });
               sepLabel.createSpan({ cls: "fn-sep-date", text: entry.date });
             } else {
               sepLabel.createSpan({ text: entry.date });
@@ -218,7 +222,7 @@ export class HomepageView extends ItemView {
           rightCol.createSpan({ cls: "fn-item-time", text: entry.time });
           const goBtn = rightCol.createDiv({ cls: "fn-goto-btn" });
           setIcon(goBtn, "external-link");
-          goBtn.setAttribute("aria-label", "\u5B9A\u4F4D\u5230\u539F\u6587\u4EF6");
+          goBtn.setAttribute("aria-label", tr("view.goto"));
           goBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             this.navigateToEntry(entry.filePath, entry.line, entry);
@@ -230,8 +234,8 @@ export class HomepageView extends ItemView {
       if (this.listEl) {
         this.listEl.empty();
         const errDiv = this.listEl.createDiv({ cls: "fn-empty" });
-        errDiv.createDiv({ cls: "fn-empty-text", text: "\u52A0\u8F7D\u5931\u8D25" });
-        errDiv.createDiv({ cls: "fn-empty-sub", text: e && e.message ? e.message : "\u8BF7\u91CD\u65B0\u6253\u5F00\u4E3B\u9875" });
+        errDiv.createDiv({ cls: "fn-empty-text", text: tr("view.loadFailed") });
+        errDiv.createDiv({ cls: "fn-empty-sub", text: errorText(e, tr("view.reopen")) });
       }
     } finally {
       this.rendering = false;
@@ -244,13 +248,13 @@ export class HomepageView extends ItemView {
   async navigateToEntry(filePath: string, line: number, entry?: RecentEntry): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(filePath);
     if (!(file instanceof TFile)) {
-      new Notice("归档文件不存在或已被移动");
+      new Notice(tr("notice.fileMissing"));
       return;
     }
     const resolved = await this.resolveEntryLine(file, line, entry);
     // 解析不到目标行时仍打开文件便于查看，但明确提示
     if (resolved < 0) {
-      new Notice("未能定位到该条记录，文件内容可能已变化");
+      new Notice(tr("notice.locateFailed"));
     }
     // 已有同一文件的 Markdown 视图时直接在其中定位
     const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -362,7 +366,7 @@ export class HomepageView extends ItemView {
       // await 期间用户可能已输入新内容，恢复时拼回去而不是覆盖
       textArea.value = textArea.value ? `${text}\n${textArea.value}` : text;
       if (this._autoResize) this._autoResize();
-      new Notice(`\u4FDD\u5B58\u5931\u8D25\uFF1A${e && e.message ? e.message : "\u8BF7\u91CD\u8BD5"}`);
+      new Notice(tr("notice.saveFailed", { msg: errorText(e, tr("notice.retry")) }));
     } finally {
       this.submitLocked = false;
     }
