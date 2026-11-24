@@ -1,4 +1,4 @@
-# 闪念笔记 (Fleeting Notes Capture)
+# 闪念笔记
 
 一个 Obsidian 插件：在主页面板内快速记录零散想法（闪念），自动按周期归档到 Markdown 文件，按日期分组展示，支持手机端。
 
