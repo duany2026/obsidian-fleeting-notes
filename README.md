@@ -99,7 +99,7 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 
 ### 1.2.8（2026-11-24）
 
-- 上架合规：打开主页改用官方推荐的 `revealLeaf` 接口
+- 上架合规：打开主页改用官方推荐的 `revealLeaf` 接口（最低 Obsidian 版本相应调整为 1.7.2）
 - 发布工作流改为从 TypeScript 源码现场构建 main.js，保证发行版与源码一致
 - 功能、数据格式和操作方式不变
 
