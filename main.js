@@ -1019,7 +1019,7 @@ var FleetingNotesPlugin = class extends import_obsidian4.Plugin {
       leaf = this.app.workspace.getLeaf(false);
       await leaf.setViewState({ type: VIEW_TYPE_HOMEPAGE, active: true });
     }
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+    this.app.workspace.revealLeaf(leaf);
     if (leaf.view instanceof HomepageView) {
       leaf.view.refresh();
     }
