@@ -167,17 +167,17 @@ const zhTW: Record<I18nKey, string> = {
 
 const en: Record<I18nKey, string> = {
   "plugin.name": "Fleeting notes",
-  "cmd.openHomepage": "Open fleeting notes home",
+  "cmd.openHomepage": "Open fleeting notes",
   "cmd.openCurrent": "Open current archive file",
 
   "notice.folderDotDot": "The storage folder cannot contain \"..\" segments",
   "notice.saveSettingsFailed": "Fleeting notes: failed to save settings",
   "notice.openCurrentFailed": "Failed to open the archive file: {msg}",
-  "notice.writeTarget": "Fleeting notes: this and future entries will be written to \"{name}\"",
-  "notice.fileMissing": "The archive file does not exist or has been moved",
-  "notice.locateFailed": "Could not find this entry; the file may have changed",
+  "notice.writeTarget": "Fleeting notes: this and future entries go to \"{name}\"",
+  "notice.fileMissing": "The archive file doesn't exist or was moved",
+  "notice.locateFailed": "Couldn't find this entry — the file may have changed",
   "notice.saveFailed": "Failed to save: {msg}",
-  "notice.retry": "please try again",
+  "notice.retry": "try again",
 
   "error.openFile": "Failed to open file: {path} — {msg}",
   "error.writeFile": "Failed to write file: {path} — {msg}",
@@ -195,7 +195,7 @@ const en: Record<I18nKey, string> = {
   "view.empty.sub": "Write down your first idea",
   "view.emptyRange.title": "No entries in this range",
   "view.emptyRange.sub": "You can change the display range in settings",
-  "view.goto": "Go to the entry in its file",
+  "view.goto": "Show in file",
   "view.loadFailed": "Failed to load",
   "view.reopen": "Please reopen the home view",
 
@@ -235,7 +235,7 @@ const en: Record<I18nKey, string> = {
   "settings.range.today": "Today",
   "settings.help.heading": "How to use",
   "settings.help.p1": "Type in the input box on the home view, then click \"Save\" or press Ctrl+Enter. Entries are archived into one Markdown file per month (or week / year), grouped by date and sorted by time.",
-  "settings.help.p2": "Click the arrow icon on the right of an entry to jump to it in the archive file, or open the archive file and edit it by hand. Renamed archive files are still recognized.",
+  "settings.help.p2": "Click the arrow on an entry to jump to it in the archive file, or open the file and edit by hand. Renamed archive files are still recognized.",
   "settings.example.heading": "File format example",
   "settings.example.line1": "First line of the entry",
   "settings.example.line2": "Second line",
