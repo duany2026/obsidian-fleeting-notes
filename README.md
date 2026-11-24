@@ -2,7 +2,7 @@
 
 ## 📥 下载安装（小白版）
 
-1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.2.7.zip`
+1. 打开本仓库的 [Releases 页面](https://github.com/duany2026/obsidian-fleeting-notes/releases)，下载最新版本的 `fleeting-notes-capture-1.3.0.zip`
 2. 解压，得到文件夹 `fleeting-notes-capture`
 3. 打开你的 Obsidian 笔记库文件夹，进入隐藏目录 `.obsidian/plugins/`（如果没见过这个目录：在 Obsidian 里点左下角仓库图标 →「在系统资源管理器中显示仓库」，进去就能看到 `.obsidian`）
 4. 把解压出的 `fleeting-notes-capture` 文件夹整个放进去，变成 `.obsidian/plugins/fleeting-notes-capture/`（里面应有 `main.js`、`manifest.json`、`styles.css`）
@@ -11,7 +11,7 @@
 > 进阶：也可以安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件，添加仓库地址 `https://github.com/duany2026/obsidian-fleeting-notes`，以后可自动更新。
 
 
-An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes are shown on the home view, and the plugin works on mobile.
+An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes are shown on the home view, and the plugin works on mobile. The interface follows Obsidian's language setting (Simplified Chinese, Traditional Chinese, or English; any other language falls back to English). Archive files use a language-neutral format (`2026-06.md`, `## 2026-06-01`, `- 13:40`), so switching the interface language never affects existing notes.
 
 一个 Obsidian 插件：在主页面板内快速记录零散想法（闪念），自动按周期归档到 Markdown 文件，按日期分组展示，支持手机端。
 
@@ -24,6 +24,7 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 - **定位原文**：点击条目右侧箭头图标，直接跳转到归档文件中对应位置
 - **容错性强**：归档文件重命名后仍可识别；日期标题带备注（如 `## 2026-06-01 会议`）也能正确追加与解析
 - **手机端可用**：`isDesktopOnly: false`，含移动端布局适配
+- **界面三语**：跟随 Obsidian 的界面语言，显示简体中文、繁体中文或英文（其他语言显示英文），无需单独设置
 
 ## 界面预览
 
@@ -83,6 +84,8 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 | 文件归档周期 | 新记录按 月 / 周 / 年 归档，切换不影响已有文件 |
 | 主页显示范围 | 「最近记录」区域展示 本月 / 本周 / 今日 |
 
+> 界面语言不提供单独选项：始终跟随 Obsidian 的界面语言（简体中文 / 繁体中文 / English，其他语言显示英文）。归档文件的文件名和内容格式只用日期和时间，与语言无关——切换界面语言后，原来的文件照常读写，不会改动。
+
 ## 行为说明
 
 - 归档文件名可重命名（如加后缀），插件优先使用标准名 `2026-06.md`；找不到标准名时，只有文件名以同周期开头**且内容符合归档格式**的文件才会被当作备胎，普通笔记不会被误认或误写。使用非标准命名的归档文件时，插件会在首次写入时提示一次记录的写入位置并记住该文件名，之后不再重复提示
@@ -96,6 +99,12 @@ An Obsidian plugin for capturing fleeting ideas from a home panel and archiving 
 发布打包时只包含 `main.js`、`manifest.json`、`styles.css`（可选 `versions.json`），**不要携带本地 `data.json`**——其中存的是作者本机的个人设置（如存储目录），会干扰新用户的初始化。
 
 ## 版本记录
+
+### 1.3.0（2026-11-25）
+
+- 新增：界面支持简体中文、繁体中文和英文三种语言，自动跟随 Obsidian 的界面语言，不需要另外设置；其他语言的 Obsidian 显示英文
+- 简体中文界面的文字和以前完全一样
+- 归档文件的格式不变（文件名、日期标题、时间行都只用数字），切换语言后原有记录照常显示、新记录照常写入同一个文件
 
 ### 1.2.8（2026-11-24）
 

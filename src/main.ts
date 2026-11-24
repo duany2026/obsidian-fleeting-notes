@@ -1,6 +1,7 @@
 import { Notice, Plugin, TFile } from "obsidian";
 import { DEFAULT_SETTINGS, FleetingNotesSettings } from "./types";
 import { NoteManager } from "./note-manager";
+import { errorText, initLanguage, tr } from "./i18n";
 import { HomepageView, VIEW_TYPE_HOMEPAGE } from "./homepage-view";
 import { FleetingSettingTab } from "./settings";
 
@@ -13,6 +14,7 @@ export default class FleetingNotesPlugin extends Plugin {
 	private _lastDateStr: string;
 
   async onload() {
+    initLanguage();
     await this.loadSettings();
     this.noteManager = new NoteManager(this.app, this.settings, () => {
       void this.saveSettings();
@@ -21,15 +23,15 @@ export default class FleetingNotesPlugin extends Plugin {
       VIEW_TYPE_HOMEPAGE,
       (leaf) => new HomepageView(leaf, this.noteManager, this.settings)
     );
-    this.addRibbonIcon("zap", "\u95EA\u5FF5\u7B14\u8BB0", () => this.activateHomepage());
+    this.addRibbonIcon("zap", tr("plugin.name"), () => this.activateHomepage());
     this.addCommand({
       id: "fleeting-notes-open-homepage",
-      name: "\u6253\u5F00\u95EA\u5FF5\u7B14\u8BB0\u4E3B\u9875",
+      name: tr("cmd.openHomepage"),
       callback: () => this.activateHomepage()
     });
     this.addCommand({
       id: "fleeting-notes-open-current",
-      name: "\u6253\u5F00\u5F53\u524D\u5F52\u6863\u6587\u4EF6",
+      name: tr("cmd.openCurrent"),
       callback: () => this.openCurrentFile()
     });
     this.registerEvent(
@@ -138,7 +140,7 @@ export default class FleetingNotesPlugin extends Plugin {
     if (!raw) return "";
     let v = String(raw).trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/\/+$/, "");
     if (v.includes("/../") || v === ".." || v.startsWith("../") || v.endsWith("/..")) {
-      new Notice("\u5B58\u50A8\u76EE\u5F55\u4E0D\u5141\u8BB8\u5305\u542B .. \u6BB5");
+      new Notice(tr("notice.folderDotDot"));
       return "";
     }
     return v;
@@ -168,7 +170,7 @@ export default class FleetingNotesPlugin extends Plugin {
           await this.saveData(this.settings);
         } catch (e) {
           console.error("FleetingNotes saveData failed:", e);
-          new Notice("闪念笔记：设置保存失败");
+          new Notice(tr("notice.saveSettingsFailed"));
         }
         for (const r of resolvers) r();
       }, 300);
@@ -194,7 +196,7 @@ export default class FleetingNotesPlugin extends Plugin {
       await this.app.workspace.getLeaf(false).openFile(file);
     } catch (e) {
       console.error("FleetingNotes openCurrentFile failed:", e);
-      new Notice(`打开归档文件失败：${e && e.message ? e.message : e}`);
+      new Notice(tr("notice.openCurrentFailed", { msg: errorText(e) }));
     }
   }
 }
