@@ -4,19 +4,14 @@
 
 安装：Obsidian 设置 → 第三方插件 → 浏览，搜「Fleeting Notes Capture」→ 安装启用。手动安装 / BRAT 方式见[文末](#安装)。
 
-> **English speakers:** see the [English section](#english) below.
+## English
 
----
+An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes show on the home view, and it works on mobile.
 
-## 界面预览
-
-| 主页 | 最近记录 |
-| --- | --- |
-| ![主页](docs/screenshots/homepage-main.png) | ![最近记录](docs/screenshots/recent-records-list.png) |
-
-| 归档文件格式 | 设置页 |
-| --- | --- |
-| ![归档文件](docs/screenshots/archive-file-format.png) | ![设置页](docs/screenshots/plugin-settings.png) |
+- **UI languages**: follows Obsidian's language — Simplified Chinese, Traditional Chinese, or English; anything else falls back to English. No separate setting.
+- **Archive format is language-neutral** (`2026-06.md`, `## 2026-06-01`, `- 13:40`), so switching the interface language never affects existing notes.
+- **Usage**: lightning ribbon icon (or "Open fleeting notes" command) → type, `Ctrl+Enter` to save → arrow icon jumps to the source line. Renamed archive files are still recognized.
+- MIT license — see [LICENSE](./LICENSE).
 
 ---
 
@@ -82,17 +77,6 @@
 - 归档文件名可重命名（如加后缀），插件优先使用标准名 `2026-06.md`；找不到标准名时，只有文件名以同周期开头**且内容符合归档格式**的文件才会被当作备胎，普通笔记不会被误认或误写。使用非标准命名的归档文件时，插件会在首次写入时提示一次记录的写入位置并记住该文件名，之后不再重复提示
 - 修改存储目录不会自动迁移已有文件，可手动移动后由插件重新识别
 - 同一周期内若存在多个可识别文件，写入目标以标准文件名为准
-
----
-
-## English
-
-An Obsidian plugin for capturing fleeting ideas from a home panel and archiving them into monthly, weekly, or yearly Markdown files. Entries are grouped by date, recent notes show on the home view, and it works on mobile.
-
-- **UI languages**: follows Obsidian's language — Simplified Chinese, Traditional Chinese, or English; anything else falls back to English. No separate setting.
-- **Archive format is language-neutral** (`2026-06.md`, `## 2026-06-01`, `- 13:40`), so switching the interface language never affects existing notes.
-- **Usage**: lightning ribbon icon (or "Open fleeting notes" command) → type, `Ctrl+Enter` to save → arrow icon jumps to the source line. Renamed archive files are still recognized.
-- MIT license — see [LICENSE](./LICENSE).
 
 ---
 
